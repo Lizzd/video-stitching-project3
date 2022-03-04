@@ -199,10 +199,12 @@ def main():
 
             img2 = cv2.imread(f)
             input_images.append(img2)
-            img1, [img1_key, img2_key] = stitch_images(img1, img2)
 
             # Show matched keypoint of two images
             draw_matched_keypoint(img1, img2)
+
+            img1, [img1_key, img2_key] = stitch_images(img1, img2)
+
     save_image(img1, sys.argv[2])
 
     # Show the resulting image
