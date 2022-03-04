@@ -154,6 +154,20 @@ def draw_matched_keypoint(img1, img2):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def stitch_images(img1, img2):
+    # Equalize histogram
+    img1 = equalize_histogram_color(img1)
+    img2 = equalize_histogram_color(img2)
+
+    # Use SIFT to find keypoints and return homography matrix
+    M, img1_key, img2_key = get_sift_homography(img1, img2)
+
+    # Stitch the images together using homography matrix
+    return get_stitched_image(img2, img1, M)
+
+def save_image(img, name):
+    result_image_name = os.path.join('results/', f'result_{name}.jpg')
+    cv2.imwrite(result_image_name, img)
 
 # Main function definition
 def main():
@@ -170,24 +184,9 @@ def main():
                 continue
 
             img2 = cv2.imread(f)
-            # Equalize histogram
-            img1 = equalize_histogram_color(img1)
-            img2 = equalize_histogram_color(img2)
+            img1 = stitch_images(img1, img2)
 
-            # Use SIFT to find keypoints and return homography matrix
-            M, img1_key, img2_key = get_sift_homography(img1, img2)
-
-            # Show input images
-            # input_images = np.hstack((img1_key, img2_key))
-            # cv2.imshow('Input Images', input_images)
-
-            # Stitch the images together using homography matrix
-            img1 = get_stitched_image(img2, img1, M)
-
-    # Write the result to the same directory
-    result_image_name = os.path.join('results/', f'result_{sys.argv[2]}.jpg')
-    print(f'Image saved in {result_image_name}')
-    cv2.imwrite(result_image_name, img1)
+    save_image(img1, sys.argv[2])
 
     # Show the resulting image
     cv2.imshow('Result', img1)
