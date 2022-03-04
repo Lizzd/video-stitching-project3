@@ -5,7 +5,7 @@ some code from https://github.com/pavanpn/Image-Stitching
 ## Usage Instructions
 - Use the command
 ```
-python stitch_images.py <FirstImage> <SecondImage>
+python stitch_images.py <dir to images> <output result name>
 ```
 - Output images will be written inside the folder 'results'
 

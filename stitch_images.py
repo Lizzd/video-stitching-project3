@@ -1,4 +1,7 @@
+import os
 import sys
+from turtle import width
+
 import cv2
 import numpy as np
 
@@ -114,8 +117,10 @@ def equalize_histogram_color(img):
     img = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
     return img
 
+match_count = 0
+def draw_matched_keypoint(img1, img2, wait=False):
+    global match_count
 
-def draw_matched_keypoint(img1, img2):
     sift = cv2.SIFT_create(100)
     kp1, des1 = sift.detectAndCompute(img1, None)
     kp2, des2 = sift.detectAndCompute(img2, None)
@@ -148,36 +153,62 @@ def draw_matched_keypoint(img1, img2):
     # # draw verified matches
     outImg = None
     outImg = cv2.drawMatchesKnn(img1, kp1, img2, kp2, goodMatches, outImg, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
-    cv2.imshow('match', outImg)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    match_count += 1
+    show_image(outImg, f'Match {match_count}')
+    if wait:
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-
-# Main function definition
-def main():
-    # Get input set of images
-    img1 = cv2.imread(sys.argv[1])
-    img2 = cv2.imread(sys.argv[2])
+def stitch_images(img1, img2):
     # Equalize histogram
     img1 = equalize_histogram_color(img1)
     img2 = equalize_histogram_color(img2)
 
     # Use SIFT to find keypoints and return homography matrix
     M, img1_key, img2_key = get_sift_homography(img1, img2)
-    # Show input images
-    input_images = np.hstack((img1_key, img2_key))
-    cv2.imshow('Input Images', input_images)
 
     # Stitch the images together using homography matrix
-    result_image = get_stitched_image(img2, img1, M)
+    return get_stitched_image(img2, img1, M), [img1_key, img2_key]
 
-    # Write the result to the same directory
-    result_image_name = 'results/'+'result_' + sys.argv[1][7:]
-    cv2.imwrite(result_image_name, result_image)
+def save_image(img, name):
+    result_image_name = os.path.join('results/', f'result_{name}.jpg')
+    cv2.imwrite(result_image_name, img)
+
+def show_image(img, title, width=1024, inter=cv2.INTER_AREA):
+    (h, w) = img.shape[:2]
+    r = width / float(w)
+    dim = (width, int(h * r))
+    resized = cv2.resize(img, dim, interpolation=inter)
+    cv2.imshow(title, resized)
+
+# Main function definition
+def main():
+    assert len(sys.argv) == 3, 'Error: Please provide the path to the directory of the images AND the output name'
+    assert os.path.isdir(sys.argv[1]), 'Error: Please provide the valid path to the directory of the images'
+
+    first_img = True
+    input_images = []
+    for filename in os.listdir(sys.argv[1]):
+        f = os.path.join(sys.argv[1], filename)
+        if os.path.isfile(f):
+            if first_img:
+                img1 = cv2.imread(f)
+                input_images.append(img1)
+                first_img = False
+                continue
+
+            img2 = cv2.imread(f)
+            input_images.append(img2)
+
+            # Show matched keypoint of two images
+            draw_matched_keypoint(img1, img2)
+
+            img1, [img1_key, img2_key] = stitch_images(img1, img2)
+
+    save_image(img1, sys.argv[2])
 
     # Show the resulting image
-    cv2.imshow('Result', result_image)
-    draw_matched_keypoint(img1, img2)
+    show_image(img1, 'Result')
     cv2.waitKey()
 
 
