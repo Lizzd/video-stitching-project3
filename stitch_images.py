@@ -1,4 +1,6 @@
+import os
 import sys
+
 import cv2
 import numpy as np
 
@@ -155,29 +157,41 @@ def draw_matched_keypoint(img1, img2):
 
 # Main function definition
 def main():
-    # Get input set of images
-    img1 = cv2.imread(sys.argv[1])
-    img2 = cv2.imread(sys.argv[2])
-    # Equalize histogram
-    img1 = equalize_histogram_color(img1)
-    img2 = equalize_histogram_color(img2)
+    assert len(sys.argv) == 3, 'Error: Please provide the path to the directory of the images AND the output name'
+    assert os.path.isdir(sys.argv[1]), 'Error: Please provide the valid path to the directory of the images'
 
-    # Use SIFT to find keypoints and return homography matrix
-    M, img1_key, img2_key = get_sift_homography(img1, img2)
-    # Show input images
-    input_images = np.hstack((img1_key, img2_key))
-    cv2.imshow('Input Images', input_images)
+    first_img = True
+    for filename in os.listdir(sys.argv[1]):
+        f = os.path.join(sys.argv[1], filename)
+        if os.path.isfile(f):
+            if first_img:
+                img1 = cv2.imread(f)
+                first_img = False
+                continue
 
-    # Stitch the images together using homography matrix
-    result_image = get_stitched_image(img2, img1, M)
+            img2 = cv2.imread(f)
+            # Equalize histogram
+            img1 = equalize_histogram_color(img1)
+            img2 = equalize_histogram_color(img2)
+
+            # Use SIFT to find keypoints and return homography matrix
+            M, img1_key, img2_key = get_sift_homography(img1, img2)
+
+            # Show input images
+            # input_images = np.hstack((img1_key, img2_key))
+            # cv2.imshow('Input Images', input_images)
+
+            # Stitch the images together using homography matrix
+            img1 = get_stitched_image(img2, img1, M)
 
     # Write the result to the same directory
-    result_image_name = 'results/'+'result_' + sys.argv[1][7:]
-    cv2.imwrite(result_image_name, result_image)
+    result_image_name = os.path.join('results/', f'result_{sys.argv[2]}.jpg')
+    print(f'Image saved in {result_image_name}')
+    cv2.imwrite(result_image_name, img1)
 
     # Show the resulting image
-    cv2.imshow('Result', result_image)
-    draw_matched_keypoint(img1, img2)
+    cv2.imshow('Result', img1)
+    # draw_matched_keypoint(img1, img2)
     cv2.waitKey()
 
 
