@@ -1,5 +1,6 @@
 import os
 import sys
+from turtle import width
 
 import cv2
 import numpy as np
@@ -169,6 +170,13 @@ def save_image(img, name):
     result_image_name = os.path.join('results/', f'result_{name}.jpg')
     cv2.imwrite(result_image_name, img)
 
+def show_result(img, width=1024, inter=cv2.INTER_AREA):
+    (h, w) = img.shape[:2]
+    r = width / float(w)
+    dim = (width, int(h * r))
+    resized = cv2.resize(img, dim, interpolation=inter)
+    cv2.imshow('Result', resized)
+
 # Main function definition
 def main():
     assert len(sys.argv) == 3, 'Error: Please provide the path to the directory of the images AND the output name'
@@ -189,7 +197,7 @@ def main():
     save_image(img1, sys.argv[2])
 
     # Show the resulting image
-    cv2.imshow('Result', img1)
+    show_result(img1)
     # draw_matched_keypoint(img1, img2)
     cv2.waitKey()
 
