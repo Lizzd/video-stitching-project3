@@ -120,6 +120,8 @@ def equalize_histogram_color(img):
 match_count = 0
 def draw_matched_keypoint(img1, img2, wait=False):
     global match_count
+    img1 = img1.copy()
+    img2 = img2.copy()
 
     sift = cv2.SIFT_create(100)
     kp1, des1 = sift.detectAndCompute(img1, None)
