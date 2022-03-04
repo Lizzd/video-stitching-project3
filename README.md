@@ -1,7 +1,7 @@
 
 ## Summary
 OpenCV and Python program to stitch two input images.
-
+some code from https://github.com/pavanpn/Image-Stitching
 ## Usage Instructions
 - Use the command
 ```
