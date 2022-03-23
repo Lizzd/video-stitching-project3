@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def laplcian_blending(I, J, mask):
+
     current_I = I
     current_J = J
 
