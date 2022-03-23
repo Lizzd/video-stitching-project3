@@ -4,6 +4,9 @@ from turtle import width
 
 import cv2
 import numpy as np
+import laplcian_blending
+from ransac import ransac
+from Homography import Homography
 
 
 # Use the keypoints to stitch the images
@@ -21,6 +24,7 @@ def get_stitched_image(img1, img2, M):
                                          M)  # Image 2 is converted to the same coordinate system as image 1 using Homography mat
 
     # Resulting dimensions
+
     result_dims = np.concatenate((img1_dims, img2_dims), axis=0)
 
     # Getting images together
@@ -37,12 +41,27 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
+
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = img1  # image2 is transformed to result_image through perspective transformation,
     # image1 occupies the right side of result_image, and the overlapping part is covered by image1
 
+    ##laplcian_blending
+    # width = result_img.shape()[0]
+    # height = result_img.shape()[1]
+    # mask = np.ones(width, height)
+    # mask[transform_dist[1]:w1 + transform_dist[1],
+    # transform_dist[0]:h1 + transform_dist[
+    #     0]] = 0
+    # left_imag = result_img[:transform_dist[1], :transform_dist[0]]
+    # right_imag = result_img[transform_dist[1]:w1 + transform_dist[1], transform_dist[0]:h1 + transform_dist[
+    #     0]]
+    # lap_result_img  = laplcian_blending(left_imag, right_imag, mask)
+
     # Return the result
+    # return result_img, lap_result_img
+
     return result_img
 
 
@@ -54,22 +73,11 @@ def get_sift_homography(img1, img2):
     # Extract keypoints and descriptors
     kp1, d1 = sift.detectAndCompute(img1, None)
     kp2, d2 = sift.detectAndCompute(img2, None)
-    # # draw the keypoints
-    # img1 = cv2.drawKeypoints(image=img1, keypoints=kp1, outImage=img1, color=(255, 0, 255),
-    #                          flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    # img2 = cv2.drawKeypoints(image=img2, keypoints=kp2, outImage=img2, color=(255, 0, 255),
-    #                          flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    # cv2.waitKey(20)
+
     # Bruteforce matcher on the descriptors
     bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=False)  # k1 and k2 match each other to find the smallest distance pair
     knnMatches = bf.knnMatch(d1, d2, k=2)  # one keypoint match two other keypoints
 
-    # # Get the first descriptor in img1 with the most matching descriptor in img2 with the smallest distance
-    # dMatch0 = knnMatches[0][0]
-    # # Get the first descriptor in img1 that matches the next descriptor in img2, followed by the distance
-    # dMatch1 = knnMatches[0][1]
-    # print('knnMatches', dMatch0.distance, dMatch0.queryIdx, dMatch0.trainIdx)
-    # print('knnMatches', dMatch1.distance, dMatch1.queryIdx, dMatch1.trainIdx)
     # Make sure that the matches are good
     good_ratio = 0.8  # Source: stackoverflow
     good_matches = []
@@ -77,14 +85,6 @@ def get_sift_homography(img1, img2):
         # Add to array only if it's a good match
         if m1.distance < good_ratio * m2.distance:
             good_matches.append(m1)
-    # draw verified matches
-    # print(len(good_matches))
-    # sorted(good_matches, key=lambda x: x[0].distance)
-    # outImg = None
-    # outImg = cv2.drawMatchesKnn(img1, kp1, img2, kp2, good_matches, outImg, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
-    # cv2.imshow('matche', outImg)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
     # Mimnum number of matches
     min_matches = 8
@@ -96,13 +96,15 @@ def get_sift_homography(img1, img2):
 
         # Add matching points to array
         for match in good_matches:
-            img1_pts.append(kp1[match.queryIdx].pt)
-            img2_pts.append(kp2[match.trainIdx].pt)
-        img1_pts = np.float32(img1_pts).reshape(-1, 1, 2)
-        img2_pts = np.float32(img2_pts).reshape(-1, 1, 2)
+            img1_pts.append(kp1[match.queryIdx].pt + (1,))
+            img2_pts.append(kp2[match.trainIdx].pt + (1,))
+        img1_pts = np.float32(img1_pts).reshape(-1, 1, 3)
+        img2_pts = np.float32(img2_pts).reshape(-1, 1, 3)
 
         # Compute homography matrix
-        M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
+        # M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
+        inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
+        M = Homography(inlier)
         # four points to calculate and use RANSAC to choose the best one
         return M, img1, img2
     else:
@@ -117,7 +119,10 @@ def equalize_histogram_color(img):
     img = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
     return img
 
+
 match_count = 0
+
+
 def draw_matched_keypoint(img1, img2, wait=False):
     global match_count
 
@@ -159,6 +164,7 @@ def draw_matched_keypoint(img1, img2, wait=False):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+
 def stitch_images(img1, img2):
     # Equalize histogram
     img1 = equalize_histogram_color(img1)
@@ -170,9 +176,11 @@ def stitch_images(img1, img2):
     # Stitch the images together using homography matrix
     return get_stitched_image(img2, img1, M), [img1_key, img2_key]
 
+
 def save_image(img, name):
     result_image_name = os.path.join('results/', f'result_{name}.jpg')
     cv2.imwrite(result_image_name, img)
+
 
 def show_image(img, title, width=1024, inter=cv2.INTER_AREA):
     (h, w) = img.shape[:2]
@@ -180,6 +188,7 @@ def show_image(img, title, width=1024, inter=cv2.INTER_AREA):
     dim = (width, int(h * r))
     resized = cv2.resize(img, dim, interpolation=inter)
     cv2.imshow(title, resized)
+
 
 # Main function definition
 def main():
@@ -203,11 +212,12 @@ def main():
             # Show matched keypoint of two images
             draw_matched_keypoint(img1, img2)
 
+            # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
             img1, [img1_key, img2_key] = stitch_images(img1, img2)
-
     save_image(img1, sys.argv[2])
-
+    # save_image(img2, sys.argv[2])
     # Show the resulting image
+    # show_image((img3, 'lap Result'))
     show_image(img1, 'Result')
     cv2.waitKey()
 
