@@ -106,7 +106,7 @@ class LaplacianBlending(nn.Module):
         input_blur = self.gaussian(input)
         # input_blur = input # 如果想试验不做高斯模糊，则可以取消注释本行，并注释上一行
         input_blur_half = self.scale(input_blur, 0.5)
-        input_lap = input - self.scale(input_blur_half, 2)
+        input_lap = input - F.interpolate(input_blur_half, size=input.shape[2:], mode='bilinear', align_corners=True)
         # input_lap = input - cv2.resize(input_blur_half, [input.shape[1], input.shape[0]])
         mask_half = self.scale(mask, 0.5)
         x_blur_half, y_blur_half = torch.chunk(input_blur_half, 2)
@@ -118,8 +118,8 @@ class LaplacianBlending(nn.Module):
         return x * mask + y * (1 - mask)
 
     def up(self, xy_blend, x_lap, y_lap, mask):
-        out = self.scale(xy_blend, 2)
         diff = self.blend(x_lap, y_lap, mask)
+        out =  F.interpolate(xy_blend, size=diff.shape[2:], mode='bilinear', align_corners=True)
         out = out + diff
         return out
 

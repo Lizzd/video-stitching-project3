@@ -69,6 +69,13 @@ def get_stitched_image(img1, img2, M):
     # cv2.imshow('left_image', left_imag)
     # cv2.imshow('right_image', right_imag)
     # cv2.imshow('result_img2', result_img)
+    width, height = result_img.shape[:2]
+    if width % 2 != 0:
+        width -= 1
+    if height % 2 != 0:
+        height -= 1
+    result_img = result_img[:width, :height, :]
+    mask = mask[:width, :height, :]
 
     lap_result_img = laplcian_blending(result_img, mask)
 
