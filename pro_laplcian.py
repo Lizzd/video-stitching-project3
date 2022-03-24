@@ -4,7 +4,7 @@ from turtle import width
 
 import cv2
 import numpy as np
-from laplcian_blending import laplcian_blending
+
 from ransac import ransac
 from Homography import Homography
 
@@ -41,7 +41,7 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
-    
+
     mask = np.ones(result_img.shape, dtype=result_img.dtype)
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
@@ -51,7 +51,7 @@ def get_stitched_image(img1, img2, M):
     transform_dist[0]:h1 + transform_dist[
         0]] = 0
     warpped_img2 = cv2.warpPerspective(img2, transform_array.dot(M),
-                                     (x_max - x_min, y_max - y_min))
+                                       (x_max - x_min, y_max - y_min))
     img_A = np.zeros(result_img.shape, dtype=result_img.dtype)
     img_B = np.zeros(result_img.shape, dtype=result_img.dtype)
     img_A += warpped_img2
@@ -59,17 +59,20 @@ def get_stitched_image(img1, img2, M):
 
     assert img_A.shape == img_B.shape
     h, w = img_A.shape[:2]
-    w2 = 2**np.ceil(np.log2(w))
-    h2 = 2**np.ceil(np.log2(h))
+    w2 = 2 ** np.ceil(np.log2(w))
+    h2 = 2 ** np.ceil(np.log2(h))
     w2 = int(w2)
     h2 = int(h2)
     print('w, h', w, h)
-    print('w2, h2', w2, h2) 
+    print('w2, h2', w2, h2)
     print('w2 - w, h2 - h', w2 - w, h2 - h)
 
-    img_A = cv2.copyMakeBorder(src=img_A, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
-    img_B = cv2.copyMakeBorder(src=img_B, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
-    mask = cv2.copyMakeBorder(src=mask, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
+    img_A = cv2.copyMakeBorder(src=img_A, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT,
+                               value=0)
+    img_B = cv2.copyMakeBorder(src=img_B, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT,
+                               value=0)
+    mask = cv2.copyMakeBorder(src=mask, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT,
+                              value=0)
 
     print(img_A.shape)
     print(img_B.shape)
@@ -92,29 +95,29 @@ def get_stitched_image(img1, img2, M):
         gpB.append(G)
     # generate Laplacian Pyramid for A
     lpA = [gpA[5]]
-    for i in range(5,0,-1):
+    for i in range(5, 0, -1):
         GE = cv2.pyrUp(gpA[i])
-        L = cv2.subtract(gpA[i-1],GE)
+        L = cv2.subtract(gpA[i - 1], GE)
         lpA.append(L)
     # generate Laplacian Pyramid for B
     lpB = [gpB[5]]
-    for i in range(5,0,-1):
+    for i in range(5, 0, -1):
         GE = cv2.pyrUp(gpB[i])
-        L = cv2.subtract(gpB[i-1],GE)
+        L = cv2.subtract(gpB[i - 1], GE)
         lpB.append(L)
     # Now add left and right halves of images in each level
     LS = []
-    for la,lb in zip(lpA,lpB):
-        rows,cols,dpt = la.shape
-        ls = np.hstack((la[:,0:cols//2], lb[:,cols//2:]))
+    for la, lb in zip(lpA, lpB):
+        rows, cols, dpt = la.shape
+        ls = np.hstack((la[:, 0:cols // 2], lb[:, cols // 2:]))
         LS.append(ls)
     # now reconstruct
     ls_ = LS[0]
-    for i in range(1,6):
+    for i in range(1, 6):
         ls_ = cv2.pyrUp(ls_)
         ls_ = cv2.add(ls_, LS[i])
     # image with direct connecting each half
-    real = np.hstack((img_A[:,:cols//2],img_B[:,cols//2:]))
+    real = np.hstack((img_A[:, :cols // 2], img_B[:, cols // 2:]))
     # Return the result
     return result_img, ls_
 
@@ -266,7 +269,7 @@ def main():
             input_images.append(img2)
 
             # Show matched keypoint of two images
-            draw_matched_keypoint(img1, img2)
+            # draw_matched_keypoint(img1, img2)
 
             imgs, [img1_key, img2_key] = stitch_images(img1, img2)
             img1, img3 = imgs
