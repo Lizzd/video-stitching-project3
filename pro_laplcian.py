@@ -41,21 +41,24 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
-    show_image(result_img, 'result_img1')
+    # show_image(result_img, 'result_img1')
+
     # mask = np.ones(result_img.shape, np.uint8) * 255
     mask = np.ones(result_img.shape)
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = img1  # image2 is transformed to result_image through perspective transformation,
     # image1 occupies the right side of result_image, and the overlapping part is covered by image1
-    mask[transform_dist[1]:w1 + transform_dist[1],
-    transform_dist[0]:h1 + transform_dist[
-        0]] = 0
+
     cv2.imshow('mask', mask)
+    # show_image(result_img, 'result_img2')
     # laplcian_blending
     width = result_img.shape[0]
     height = result_img.shape[1]
-    mask[transform_dist[1]:w1 + transform_dist[1],
+    # mask[transform_dist[1]:w1 + transform_dist[1],
+    # transform_dist[0]:h1 + transform_dist[
+    #     0], :] = 0
+    mask[:,
     transform_dist[0]:h1 + transform_dist[
         0], :] = 0
     left_imag = result_img[:, :transform_dist[0]]
@@ -78,9 +81,9 @@ def get_stitched_image(img1, img2, M):
     mask = mask[:width, :height, :]
 
     lap_result_img = laplcian_blending(result_img, mask)
-
+    # lap_result_img = laplcian_blending(left_imag, right_imag)
     # Return the result
-    return result_img, lap_result_img
+    return result_img
 
     # return result_img
 
@@ -232,12 +235,11 @@ def main():
             # Show matched keypoint of two images
             draw_matched_keypoint(img1, img2)
 
-            img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
+            img1,[img1_key, img2_key] = stitch_images(img1, img2)
             # img1, [img1_key, img2_key] = stitch_images(img1, img2)
     save_image(img1, sys.argv[2])
     # save_image(img2, sys.argv[2])
     # Show the resulting image
-    show_image((img3, 'lap Result'))
     show_image(img1, 'Result')
     cv2.waitKey()
 

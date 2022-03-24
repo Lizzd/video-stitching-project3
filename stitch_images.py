@@ -41,12 +41,12 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
-
+    cv2.imshow('result1',result_img)
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = img1  # image2 is transformed to result_image through perspective transformation,
     # image1 occupies the right side of result_image, and the overlapping part is covered by image1
-
+    cv2.imshow('result2', result_img)
     ##laplcian_blending
     # width = result_img.shape()[0]
     # height = result_img.shape()[1]
