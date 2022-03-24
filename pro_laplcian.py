@@ -41,9 +41,8 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
-    show_image(result_img, 'result_img1')
-    # mask = np.ones(result_img.shape, np.uint8) * 255
-    mask = np.ones(result_img.shape)
+    
+    mask = np.ones(result_img.shape, dtype=result_img.dtype)
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = img1  # image2 is transformed to result_image through perspective transformation,
@@ -51,36 +50,73 @@ def get_stitched_image(img1, img2, M):
     mask[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = 0
-    cv2.imshow('mask', mask)
+    warpped_img2 = cv2.warpPerspective(img2, transform_array.dot(M),
+                                     (x_max - x_min, y_max - y_min))
+    img_A = np.zeros(result_img.shape, dtype=result_img.dtype)
+    img_B = np.zeros(result_img.shape, dtype=result_img.dtype)
+    img_A += warpped_img2
+    img_B += (1 - mask) * result_img
+
+    assert img_A.shape == img_B.shape
+    h, w = img_A.shape[:2]
+    w2 = 2**np.ceil(np.log2(w))
+    h2 = 2**np.ceil(np.log2(h))
+    w2 = int(w2)
+    h2 = int(h2)
+    print('w, h', w, h)
+    print('w2, h2', w2, h2) 
+    print('w2 - w, h2 - h', w2 - w, h2 - h)
+
+    img_A = cv2.copyMakeBorder(src=img_A, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
+    img_B = cv2.copyMakeBorder(src=img_B, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
+    mask = cv2.copyMakeBorder(src=mask, top=0, bottom=h2 - h, left=0, right=w2 - w, borderType=cv2.BORDER_CONSTANT, value=0)
+
+    print(img_A.shape)
+    print(img_B.shape)
+    cv2.imshow('img_A', img_A)
+    cv2.imshow('img_B', img_B)
+    cv2.waitKey()
+
     # laplcian_blending
-    width = result_img.shape[0]
-    height = result_img.shape[1]
-    mask[transform_dist[1]:w1 + transform_dist[1],
-    transform_dist[0]:h1 + transform_dist[
-        0], :] = 0
-    left_imag = result_img[:, :transform_dist[0]]
-    right_imag = result_img[:, transform_dist[0]:h1 + transform_dist[
-        0]]
-    #
-    # show_image(left_imag,'left_image')
-    # show_image(right_imag,'right_image')
-    # show_image(result_img, 'result_img2')
-
-    # cv2.imshow('left_image', left_imag)
-    # cv2.imshow('right_image', right_imag)
-    # cv2.imshow('result_img2', result_img)
-    width, height = result_img.shape[:2]
-    if width % 2 != 0:
-        width -= 1
-    if height % 2 != 0:
-        height -= 1
-    result_img = result_img[:width, :height, :]
-    mask = mask[:width, :height, :]
-
-    lap_result_img = laplcian_blending(result_img, mask)
-
+    # generate Gaussian pyramid for A
+    G = img_A.copy()
+    gpA = [G]
+    for i in range(6):
+        G = cv2.pyrDown(G)
+        gpA.append(G)
+    # generate Gaussian pyramid for B
+    G = img_B.copy()
+    gpB = [G]
+    for i in range(6):
+        G = cv2.pyrDown(G)
+        gpB.append(G)
+    # generate Laplacian Pyramid for A
+    lpA = [gpA[5]]
+    for i in range(5,0,-1):
+        GE = cv2.pyrUp(gpA[i])
+        L = cv2.subtract(gpA[i-1],GE)
+        lpA.append(L)
+    # generate Laplacian Pyramid for B
+    lpB = [gpB[5]]
+    for i in range(5,0,-1):
+        GE = cv2.pyrUp(gpB[i])
+        L = cv2.subtract(gpB[i-1],GE)
+        lpB.append(L)
+    # Now add left and right halves of images in each level
+    LS = []
+    for la,lb in zip(lpA,lpB):
+        rows,cols,dpt = la.shape
+        ls = np.hstack((la[:,0:cols//2], lb[:,cols//2:]))
+        LS.append(ls)
+    # now reconstruct
+    ls_ = LS[0]
+    for i in range(1,6):
+        ls_ = cv2.pyrUp(ls_)
+        ls_ = cv2.add(ls_, LS[i])
+    # image with direct connecting each half
+    real = np.hstack((img_A[:,:cols//2],img_B[:,cols//2:]))
     # Return the result
-    return result_img, lap_result_img
+    return result_img, ls_
 
     # return result_img
 
@@ -232,12 +268,13 @@ def main():
             # Show matched keypoint of two images
             draw_matched_keypoint(img1, img2)
 
-            img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
+            imgs, [img1_key, img2_key] = stitch_images(img1, img2)
+            img1, img3 = imgs
             # img1, [img1_key, img2_key] = stitch_images(img1, img2)
     save_image(img1, sys.argv[2])
     # save_image(img2, sys.argv[2])
     # Show the resulting image
-    show_image((img3, 'lap Result'))
+    show_image(img3, 'lap Result')
     show_image(img1, 'Result')
     cv2.waitKey()
 
