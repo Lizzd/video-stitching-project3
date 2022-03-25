@@ -191,31 +191,40 @@ def show_image(img, title, width=1024, inter=cv2.INTER_AREA):
     resized = cv2.resize(img, dim, interpolation=inter)
     cv2.imshow(title, resized)
 
+def getFrame(path):
+    vidcap = cv2.VideoCapture(path)     #test1.mp4
+    success,image = vidcap.read()
+    count = 0
+    frames = []
+    while success:
+        if (count % 15 == 0):
+            cv2.imwrite("./frames/frame%d.jpg" % (count / 15), image)     # save frame as JPEG file, could delete later  
+            frames.append(image)
+        success,image = vidcap.read()
+        count += 1
+    return frames
 
 # Main function definition
 def main():
     assert len(sys.argv) == 3, 'Error: Please provide the path to the directory of the images AND the output name'
-    assert os.path.isdir(sys.argv[1]), 'Error: Please provide the valid path to the directory of the images'
+    # assert os.path.isdir(sys.argv[1]), 'Error: Please provide the valid path to the directory of the images'
 
     first_img = True
-    input_images = []
-    for filename in os.listdir(sys.argv[1]):
-        f = os.path.join(sys.argv[1], filename)
-        if os.path.isfile(f):
-            if first_img:
-                img1 = cv2.imread(f)
-                input_images.append(img1)
-                first_img = False
-                continue
+    input_images = getFrame(sys.argv[1])
+    for i in range(len(input_images)):
+        if first_img:
+            img1 = input_images[i]
+            first_img = False
+            continue
 
-            img2 = cv2.imread(f)
-            input_images.append(img2)
+        img2 = input_images[i]
 
-            # Show matched keypoint of two images
-            draw_matched_keypoint(img1, img2)
+        # Show matched keypoint of two images
+        draw_matched_keypoint(img1, img2)
 
-            # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
-            img1, [img1_key, img2_key] = stitch_images(img1, img2)
+        # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
+        img1, [img1_key, img2_key] = stitch_images(img1, img2)
+            
     save_image(img1, sys.argv[2])
     # save_image(img2, sys.argv[2])
     # Show the resulting image
