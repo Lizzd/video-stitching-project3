@@ -1,6 +1,7 @@
 import os
 import sys
 from turtle import width
+import imutils
 
 import cv2
 import numpy as np
@@ -198,8 +199,9 @@ def getFrame(path):
     count = 0
     frames = []
     while success:
-        if (count % 5 == 0):
-            cv2.imwrite("./frames/frame%d.jpg" % (count / 5), image)     # save frame as JPEG file, could delete later  
+        if (count % 80 == 0):
+            # image = cv2.resize(image, (640, 360))
+            cv2.imwrite("./frames/frame%d.jpg" % (count / 80), image)     # save frame as JPEG file, could delete later  
             frames.append(image)
         success,image = vidcap.read()
         count += 1
@@ -212,55 +214,55 @@ def main():
 
     first_img = True
     input_images = getFrame(sys.argv[1])
-    # total_num = len(input_images)
-    # print("total frames!!", total_num)
-    # # divide the frames into 5 groups
-    # num_of_frames = round(total_num/5)              # number of frames per group
-    # print("frames each group!!", num_of_frames)
-    # inter_frames = []                               # result of stitched frames from each group, len should be 5
-    # for i in range(5):
-    #     last_index = i * num_of_frames + 7
-    #     print("frist index", (i * num_of_frames))
-    #     print("last index!!", last_index)
-    #     key_index  = 3
-    #     if (last_index > total_num):
-    #         last_index = total_num
-    #         key_index  = 2
-    #     frame_list = input_images[(i * num_of_frames):last_index]
-    #     print("frame list!!", len(frame_list))
-    #     # get the stitched result from this group
-    #     stitched_images = []                        # len should be len(frame_list) - 1
-    #     for j in range(len(frame_list)):
-    #         if (j != key_index):
-    #             print ("j!!", j)
-    #             img, [img1_key, img2_key] = stitch_images(frame_list[j], frame_list[key_index])
-    #             stitched_images.append(img)
+    total_num = len(input_images)
+    print("total frames!!", total_num)
+    # divide the frames into 5 groups
+    num_of_frames = round(total_num/5)              # number of frames per group
+    print("frames each group!!", num_of_frames)
+    inter_frames = []                               # result of stitched frames from each group, len should be 5
+    for i in range(5):
+        last_index = i * num_of_frames + 7
+        print("frist index", (i * num_of_frames))
+        print("last index!!", last_index)
+        key_index  = 3
+        if (last_index > total_num):
+            last_index = total_num
+            key_index  = 2
+        frame_list = input_images[(i * num_of_frames):last_index]
+        print("frame list!!", len(frame_list))
+        # get the stitched result from this group
+        stitched_images = []                        # len should be len(frame_list) - 1
+        for j in range(len(frame_list)):
+            if (j != key_index):
+                print ("j!!", j)
+                img, [img1_key, img2_key] = stitch_images(frame_list[j], frame_list[key_index])
+                stitched_images.append(img)
         
-    #     # stitch the images which result from sticthing with the key frame
-    #     for j in range(len(stitched_images)):
-    #         if (j == 0):
-    #             img1 = stitched_images[j]
-    #             continue
-    #         img2 = stitched_images[j]
-    #         img1, [img1_key, img2_key] = stitch_images(img1, img2)
+        # stitch the images which result from sticthing with the key frame
+        for j in range(len(stitched_images)):
+            if (j == 0):
+                img1 = stitched_images[j]
+                continue
+            img2 = stitched_images[j]
+            img1, [img1_key, img2_key] = stitch_images(img1, img2)
 
-    #     inter_frames.append(img1)
+        inter_frames.append(img1)
 
-    # for i in range(len(inter_frames)):
-    #     if (i == 0):
-    #         img1 = inter_frames[i]
-    #         continue
+    for i in range(len(inter_frames)):
+        if (i == 0):
+            img1 = inter_frames[i]
+            continue
 
-    #     img2 = inter_frames[i]
+        img2 = inter_frames[i]
 
-    #     # Show matched keypoint of two images
-    #     draw_matched_keypoint(img1, img2)
+        # Show matched keypoint of two images
+        draw_matched_keypoint(img1, img2)
 
-    #     # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
-    #     img1, [img1_key, img2_key] = stitch_images(img1, img2)
-    NUM_FRAMES = 10
+        # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
+        img1, [img1_key, img2_key] = stitch_images(img1, img2)
+    NUM_FRAMES = len(input_images)
     input_images = input_images[:NUM_FRAMES]
-    mid = NUM_FRAMES//2
+    mid = NUM_FRAMES//2 + 1
     img1 = input_images[mid]
     l = mid - 1
     r = mid + 1 
@@ -274,14 +276,76 @@ def main():
         l -= 1
         r += 1
 
+    imageStitcher = cv2.Stitcher_create()
+
+    error, stitched_img = imageStitcher.stitch(input_images)
+
+    if not error:
+        save_image(stitched_img, sys.argv[2])
+        cv2.imshow("Stitched Img", stitched_img)
+        cv2.waitKey(0)
+
+        # make border
+        stitched_img = cv2.copyMakeBorder(stitched_img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0,0,0))
+
+        # create thresholded binary image
+        gray = cv2.cvtColor(stitched_img, cv2.COLOR_BGR2GRAY)
+        thresh_img = cv2.threshold(gray, 0, 255 , cv2.THRESH_BINARY)[1]
+        cv2.imshow("Threshold Image", thresh_img)
+        cv2.waitKey(0)
+
+        # find the contour of thresh_img
+        contours = cv2.findContours(thresh_img.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # get the area of interst
+        contours = imutils.grab_contours(contours)
+        areaOI = max(contours, key=cv2.contourArea)
+        cv2.imshow("first areaOI", thresh_img)
+        cv2.waitKey(0)
+        # get the bounding rect of areaOI and create a mask for thresh_img
+        mask = np.zeros(thresh_img.shape, dtype="uint8")
+        x, y, w, h = cv2.boundingRect(areaOI)
+        cv2.rectangle(mask, (x,y), (x + w, y + h), 255, -1)
+
+        # loop over to find the max minimum rect
+        minRectangle = mask.copy()
+        sub = mask.copy()
+        cv2.imshow("first minRectangle", minRectangle)
+        cv2.waitKey(0)
+        while cv2.countNonZero(sub) > 20:
+            minRectangle = cv2.erode(minRectangle, None)
+            # cv2.imshow("eroded loop minRectangle", minRectangle)
+            # cv2.waitKey(0)
+            sub = cv2.subtract(minRectangle, thresh_img)
+            # print("non zero count: ", cv2.countNonZero(sub))
+            # cv2.imshow("sub res", sub)
+
+        # get the final result
+        contours = cv2.findContours(minRectangle.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        contours = imutils.grab_contours(contours)
+        areaOI = max(contours, key=cv2.contourArea)
+
+        cv2.imshow("minRectangle Image", minRectangle)
+        cv2.waitKey(0)
+
+        x, y, w, h = cv2.boundingRect(areaOI)
+
+        stitched_img = stitched_img[y:y + h, x:x + w]
+
+        save_image(stitched_img, "processedRes")
+
+        cv2.imshow("Stitched Image Processed", stitched_img)
+
+        cv2.waitKey(0)
+
 
             
-    save_image(img1, sys.argv[2])
+    # save_image(img1, sys.argv[2])
     # save_image(img2, sys.argv[2])
     # Show the resulting image
     # show_image((img3, 'lap Result'))
-    show_image(img1, 'Result')
-    cv2.waitKey()
+    # show_image(img1, 'Result')
+    # cv2.waitKey()
 
 
 # Call main function
