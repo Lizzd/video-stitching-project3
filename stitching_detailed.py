@@ -288,6 +288,7 @@ def get_compensator(args):
 def main():
     args = parser.parse_args()
     img_names = args.img_names
+    img_names.sort(key=natural_keys)
     print('img_names')
     print(img_names)
     work_megapix = args.work_megapix
@@ -511,9 +512,25 @@ def main():
             pos_s = img_names[idx].rfind("/")
             if pos_s == -1:
                 fixed_file_name = "fixed_" + img_names[idx]
+                mask_fixed_file_name = "mask_fixed_" + img_names[idx]
             else:
                 fixed_file_name = img_names[idx][:pos_s + 1] + "fixed_" + img_names[idx][pos_s + 1:]
+                mask_fixed_file_name = img_names[idx][:pos_s + 1] + "mask_fixed_" + img_names[idx][pos_s + 1:]
             cv.imwrite(fixed_file_name, timelapser.getDst())
+
+            # Saveing the mask of the fixed image
+            dst_array = cv.UMat.get(timelapser.getDst())
+            timelapse_make = np.zeros(dst_array.shape[:2], np.uint8)
+            r_diff = dst_array[:, :, 0]
+            g_diff = dst_array[:, :, 1]
+            b_diff = dst_array[:, :, 2]
+            min_y = np.min((np.min(np.nonzero(r_diff)[0]), np.min(np.nonzero(g_diff)[0]), np.min(np.nonzero(b_diff)[0])))
+            max_y = np.max((np.max(np.nonzero(r_diff)[0]), np.max(np.nonzero(g_diff)[0]), np.max(np.nonzero(b_diff)[0])))
+            min_x = np.min((np.min(np.nonzero(r_diff)[1]), np.min(np.nonzero(g_diff)[1]), np.min(np.nonzero(b_diff)[1])))
+            max_x = np.max((np.max(np.nonzero(r_diff)[1]), np.max(np.nonzero(g_diff)[1]), np.max(np.nonzero(b_diff)[1])))
+            timelapse_make[min_y: max_y, min_x: max_x] = 255
+            cv.imwrite(mask_fixed_file_name, timelapse_make)
+
             print(fixed_file_name, 'written')
             timelapse_imgs.append(fixed_file_name)
         else:
