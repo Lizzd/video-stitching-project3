@@ -1,21 +1,7 @@
+readme: Don't read me!
 
-## Summary
-OpenCV and Python program to stitch two input images.
-some code from https://github.com/pavanpn/Image-Stitching
-## Usage Instructions
-- Use the command
-```
-python stitch_images.py <dir to images> <output result name>
-```
-- Output images will be written inside the folder 'results'
+refer to the official C code, [click here](http://www.telecom.ulg.ac.be/research/vibe/)
 
-Algorithm steps:
+参考了官方C语言代码，仅实现了对灰度图的运动目标检测，速度不快，不过低分辨率视频倒也能跑跑，示例视频就还行
 
-1. Read in the image
-2. Use SIFT to extract the feature points of each image and the descriptor corresponding to each feature point
-By matching feature point descriptors, find matching feature point pairs in the two images (there may be false matches here)
-3. Use the RANSAC algorithm to eliminate false matches
-4. Solve the equation system and calculate the Homograph homography transformation matrix
-5. Perform affine transformation on one of the images through the Homograph homography transformation matrix
-6.Stitching pictures
-
+Blog：https://blog.csdn.net/Ricardo232525/article/details/107451674

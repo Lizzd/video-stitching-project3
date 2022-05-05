@@ -10,7 +10,7 @@ import cv2
 import time
 from lib_vibe import vibe_gray
 
-cap = cv2.VideoCapture('./video4.mp4')
+cap = cv2.VideoCapture('./project.avi')
 vibe = vibe_gray()
 
 

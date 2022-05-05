@@ -7,6 +7,7 @@ Created on Sat Jul 18 17:43:58 2020
 
 import numpy as np
 import time
+import cv2 as cv
 
 class vibe_gray:
     def __init__(self, ):
@@ -98,6 +99,9 @@ class vibe_gray:
         # Produces the output. Note that this step is application-dependent
         mask = segmentation_map > 0
         segmentation_map[mask] = 255
+        element = cv.getStructuringElement(cv.MORPH_CROSS, (5, 5))
+        segmentation_map = cv.morphologyEx(segmentation_map, cv.MORPH_OPEN, element)
+
         return segmentation_map.astype(np.uint8)
     
     def Update(self, image, updating_mask):
