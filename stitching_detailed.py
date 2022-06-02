@@ -11,6 +11,8 @@ from __future__ import print_function
 import re
 import argparse
 from collections import OrderedDict
+from tkinter import N
+from crop import remove_border
 
 import cv2 as cv
 import numpy as np
@@ -535,14 +537,20 @@ def main():
             timelapse_imgs.append(fixed_file_name)
         else:
             blender.feed(cv.UMat(image_warped_s), mask_warped, corners[idx])
-    if not timelapse:
+
+    # always create the panorama to get the remove-border mask,
+    if (blender is not None):
         result = None
         result_mask = None
         result, result_mask = blender.blend(result, result_mask)
-        cv.imwrite(result_name, result)
         zoom_x = 600.0 / result.shape[1]
         dst = cv.normalize(src=result, dst=None, alpha=255., norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U)
-        dst = cv.resize(dst, dsize=None, fx=zoom_x, fy=zoom_x)
+        # dst = cv.resize(dst, dsize=None, fx=zoom_x, fy=zoom_x)
+        border_mask = remove_border(dst)
+        cv.imwrite("border_mask.jpg", border_mask)
+    # but only save the panorama image when timelapse flag as false
+    if not timelapse:
+        cv.imwrite(result_name, result)
         cv.imshow(result_name, dst)
         cv.waitKey()
 
