@@ -36,6 +36,7 @@ def Homography(correspondences):
     # matrixA = np.mat(aList)
 
     # svd composition
+    A_matrix = A_matrix.T@A_matrix
     u, s, v = np.linalg.svd(A_matrix)
 
     # reshape the min singular value into a 3 by 3 matrix
