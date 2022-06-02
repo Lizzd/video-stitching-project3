@@ -41,12 +41,12 @@ def get_stitched_image(img1, img2, M):
     # Warp images to get the resulting image
     result_img = cv2.warpPerspective(img2, transform_array.dot(M),
                                      (x_max - x_min, y_max - y_min))
-    cv2.imshow('result1',result_img)
+    # cv2.imshow('result1',result_img)
     result_img[transform_dist[1]:w1 + transform_dist[1],
     transform_dist[0]:h1 + transform_dist[
         0]] = img1  # image2 is transformed to result_image through perspective transformation,
     # image1 occupies the right side of result_image, and the overlapping part is covered by image1
-    cv2.imshow('result2', result_img)
+    # cv2.imshow('result2', result_img)
     ##laplcian_blending
     # width = result_img.shape()[0]
     # height = result_img.shape()[1]
@@ -103,8 +103,8 @@ def get_sift_homography(img1, img2):
 
         # Compute homography matrix
         M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
-        # inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
-        # M = Homography(inlier)
+        inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
+        M = Homography(inlier)
         # four points to calculate and use RANSAC to choose the best one
         return M, img1, img2
     else:
@@ -162,6 +162,7 @@ def draw_matched_keypoint(img1, img2, wait=False):
     outImg = cv2.drawMatchesKnn(img1, kp1, img2, kp2, goodMatches, outImg, flags=cv2.DRAW_MATCHES_FLAGS_DEFAULT)
     match_count += 1
     show_image(outImg, f'Match {match_count}')
+    save_image(outImg, f'Match {match_count}')
     if wait:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -220,7 +221,7 @@ def main():
     # save_image(img2, sys.argv[2])
     # Show the resulting image
     # show_image((img3, 'lap Result'))
-    show_image(img1, 'Result')
+    # show_image(img1, 'Result')
     cv2.waitKey()
 
 

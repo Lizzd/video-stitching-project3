@@ -2,11 +2,16 @@ import numpy as np
 
 
 def epa(correspondences):
-    size_x = np.shape(correspondences, 1)
-    homo = np.ones(1, size_x)
-    x1 = np.vstack((correspondences[0:1, :], homo))
-    x2 = np.vstack((correspondences[2:3, :], homo))
-    A = np.zeros(size_x, 9)
+    # correspondences =  correspondences.T
+    size_x = np.shape(correspondences)[0]
+    # homo = np.ones(1, size_x)
+    # x1 = np.vstack((correspondences[0:1, :], homo))
+    # x2 = np.vstack((correspondences[2:3, :], homo))
+
+    x1 = correspondences[0:2, :]
+    x2 = correspondences[3:5, :]
+    # x2 = np.vstack((correspondences[2:3, :], homo))
+    A = np.zeros((size_x, 9))
     for i in range(size_x):
         A[i, :] = np.kron(x1[:, i], x2[:, i])
 
