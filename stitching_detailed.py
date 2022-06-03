@@ -3,6 +3,8 @@ Stitching sample (advanced)
 ===========================
 
 Show how to use Stitcher API from python.
+
+This file is modified from OpenCV's https://docs.opencv.org/4.x/d8/d19/tutorial_stitcher.html
 """
 
 # Python 2/3 compatibility
@@ -555,6 +557,7 @@ def main():
         cv.waitKey()
 
     print("Done")
+    '''
     if timelapse:
         import imageio
         with imageio.get_writer('movie.gif', mode='I') as writer:
@@ -562,7 +565,7 @@ def main():
             for filename in timelapse_imgs:
                 image = imageio.imread(filename)
                 writer.append_data(image)
-
+    '''
 if __name__ == '__main__':
     print(__doc__)
     main()
