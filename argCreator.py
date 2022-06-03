@@ -4,7 +4,7 @@ import pyperclip
 s = ''
 cnt = 200
 for f in os.listdir('frames/'):
-    if cnt % 3 == 0:
+    if cnt % 2 == 0:
         s += '"./frames/' + f + '" '
     cnt -= 1
     if not cnt:
