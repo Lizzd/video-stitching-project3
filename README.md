@@ -1,7 +1,7 @@
 
 ## Summary
 OpenCV and Python program to stitch two input images.
-![image](https://github.com/Lizzd/video-stitching-project3/GIF/projectmoving_people.gif )
+![image](https://github.com/Lizzd/video-stitching-project3/GIF/projectmoving_people.gif)
 
 ## Usage Instructions
 - Use the command
