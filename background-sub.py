@@ -41,7 +41,7 @@ while True:
     fgMask = backSub1.apply(frame)
     # fgMask = fgMask * 0
 
-    fgMask = fgMask * (mask[:, :, 0] / 255) * (mask_border_resize / 255)
+    # fgMask = fgMask * (mask[:, :, 0] / 255)
 
     # fgMask = fgMask * (mask[:, :, 0]/255)
     # fgMask = cv.blur(fgMask, (3, 3))
@@ -64,9 +64,9 @@ while True:
 
     cv.imshow('Frame', frame)
     cv.imshow('FG Mask', fgMask)
-    cv.imshow('mask', mask[:, :, 0])
-    cv.imshow('moving_obj', moving_obj)
-    cv.imshow('background', background)
+    # cv.imshow('mask', mask[:, :, 0])
+    # cv.imshow('moving_obj', moving_obj)
+    # cv.imshow('background', background)
     # height, width = fgMask.shape
     # size = (width, height)
     # fgMask_Video = np.array([[fgMask], [fgMask], [fgMask]])

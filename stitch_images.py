@@ -103,8 +103,8 @@ def get_sift_homography(img1, img2):
 
         # Compute homography matrix
         M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
-        inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
-        M = Homography(inlier)
+        # inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
+        # M = Homography(inlier)
         # four points to calculate and use RANSAC to choose the best one
         return M, img1, img2
     else:
