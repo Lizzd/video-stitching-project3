@@ -557,6 +557,7 @@ def main():
         cv.waitKey()
 
     print("Done")
+    '''
     if timelapse:
         import imageio
         with imageio.get_writer('movie.gif', mode='I') as writer:
@@ -564,7 +565,7 @@ def main():
             for filename in timelapse_imgs:
                 image = imageio.imread(filename)
                 writer.append_data(image)
-
+    '''
 if __name__ == '__main__':
     print(__doc__)
     main()
