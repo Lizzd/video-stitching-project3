@@ -60,7 +60,7 @@ cd superglue_matching
 python match_pairs.py
 ```
 
--To run the Vibe algorithm to get the foreground and background
+- To run the Vibe algorithm to get the foreground and background
 ``` python
 cd vibe
 python vibe_demo.py
