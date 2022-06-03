@@ -17,6 +17,8 @@ Stitching Video demo3
 ![image](https://github.com/Lizzd/video-stitching-project3/blob/972aa19c42229e864cdeeb0dbb7d42189e96b14c/GIF/foreground_video_square.gif)
 ![image](https://github.com/Lizzd/video-stitching-project3/blob/972aa19c42229e864cdeeb0dbb7d42189e96b14c/GIF/background_video_square.gif)
 ## Usage Instructions
+All the videos used in the report can be found in [this](https://github.com/Lizzd/video-stitching-project3/tree/main/Rmse_analysis/video).
+
 Algorithm steps:
 
 1. Read in the image
