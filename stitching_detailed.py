@@ -546,8 +546,8 @@ def main():
         zoom_x = 600.0 / result.shape[1]
         dst = cv.normalize(src=result, dst=None, alpha=255., norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U)
         # dst = cv.resize(dst, dsize=None, fx=zoom_x, fy=zoom_x)
-        border_mask = remove_border(dst)
-        cv.imwrite("border_mask.jpg", border_mask)
+        # border_mask = remove_border(dst)
+        # cv.imwrite("border_mask.jpg", border_mask)
     # but only save the panorama image when timelapse flag as false
     if not timelapse:
         cv.imwrite(result_name, result)
