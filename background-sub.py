@@ -15,7 +15,7 @@ parser2.add_argument('--input', type=str, help='Path to a video or a sequence of
 parser2.add_argument('--algo', type=str, help='Background subtraction method (KNN, MOG2).', default='MOG2')
 args2 = parser2.parse_args()
 
-mask_border = cv.imread('border_mask.jpg');
+# mask_border = cv.imread('border_mask.jpg');
 
 if args1.algo == 'MOG2':
     backSub1 = cv.createBackgroundSubtractorMOG2()
