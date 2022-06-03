@@ -4,7 +4,6 @@ from turtle import width
 
 import cv2
 import numpy as np
-import laplcian_blending
 from ransac import ransac
 from Homography import Homography
 
@@ -93,18 +92,23 @@ def get_sift_homography(img1, img2):
         # Array to store matching points
         img1_pts = []
         img2_pts = []
+        correspondenceList = []
 
         # Add matching points to array
         for match in good_matches:
             img1_pts.append(kp1[match.queryIdx].pt + (1,))
             img2_pts.append(kp2[match.trainIdx].pt + (1,))
+            (x1, y1) = kp1[match.queryIdx].pt
+            (x2, y2) = kp2[match.trainIdx].pt
+            correspondenceList.append([x1, y1, x2, y2])
         img1_pts = np.float32(img1_pts).reshape(-1, 1, 3)
         img2_pts = np.float32(img2_pts).reshape(-1, 1, 3)
 
+        corrs = np.matrix(correspondenceList)
         # Compute homography matrix
         M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
-        # inlier = ransac(img1_pts, img2_pts, 5.0, 1000)  # x2 = M*x1  many times choose
-        # M = Homography(inlier)
+        final_H, inlier = ransac(corrs)  # x2 = M*x1  many times choose
+        # M = final_H
         # four points to calculate and use RANSAC to choose the best one
         return M, img1, img2
     else:
