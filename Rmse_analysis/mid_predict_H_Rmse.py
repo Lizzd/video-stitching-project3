@@ -81,10 +81,10 @@ def get_match_pair(image0, image1):
     image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
     inp1 = frame2tensor(image1, device)
 
-    if image0 is None or image1 is None:
-        print('Problem reading image pair: {} {}'.format(
-            input_dir/name0, input_dir/name1))
-        exit(1)
+    # if image0 is None or image1 is None:
+    #     print('Problem reading image pair: {} {}'.format(
+    #         input_dir/name0, input_dir/name1))
+    #     exit(1)
 
     if do_match:
         # Perform the matching.
@@ -99,10 +99,10 @@ def get_match_pair(image0, image1):
         return out_matches
 
     # Keep the matching keypoints.
-    valid = matches > -1
-    mkpts0 = kpts0[valid]
-    mkpts1 = kpts1[matches[valid]]
-    mconf = conf[valid]
+    # valid = matches > -1
+    # mkpts0 = kpts0[valid]
+    # mkpts1 = kpts1[matches[valid]]
+    # mconf = conf[valid]
 
     
 import os
@@ -343,8 +343,8 @@ def show_image(img, title, width=1024, inter=cv2.INTER_AREA):
     resized = cv2.resize(img, dim, interpolation=inter)
     cv2.imshow(title, resized)
 
-
-frames = getFrame("video/drone3.mp4", angle=80)
+video_path = os.path.join('video/', f'{sys.argv[1]}.mp4')
+frames = getFrame(video_path, angle=80)
 img1 = frames[0]
 img2 = frames[-1]
 cv2.imwrite('result_left.jpg', img1)
