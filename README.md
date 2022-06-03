@@ -12,6 +12,10 @@ Stitching Video demo2
 ![image](https://github.com/Lizzd/video-stitching-project3/blob/812a840c389116ec1fddc52910dcc7acd199c962/GIF/foreground_video_rlc.gif)
 ![background](https://github.com/Lizzd/video-stitching-project3/blob/1f6f3d75dcc63bb805da45d9963c3a67ce3c5826/GIF/background_video_rlc.gif)
 
+Stitching Video demo3
+![image](https://github.com/Lizzd/video-stitching-project3/blob/972aa19c42229e864cdeeb0dbb7d42189e96b14c/GIF/projectmoving_square.gif)
+![image](https://github.com/Lizzd/video-stitching-project3/blob/972aa19c42229e864cdeeb0dbb7d42189e96b14c/GIF/foreground_video_square.gif)
+![image](https://github.com/Lizzd/video-stitching-project3/blob/972aa19c42229e864cdeeb0dbb7d42189e96b14c/GIF/background_video_square.gif)
 ## Usage Instructions
 Algorithm steps:
 
