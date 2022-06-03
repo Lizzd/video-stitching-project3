@@ -1,18 +1,18 @@
 
 ## Summary
 OpenCV and Python program to stitch two input images.
+
+Stitching Video demo1
 ![image](https://github.com/Lizzd/video-stitching-project3/blob/812a840c389116ec1fddc52910dcc7acd199c962/GIF/projectmoving_people.gif)
 ![foreground](https://github.com/Lizzd/video-stitching-project3/blob/1f6f3d75dcc63bb805da45d9963c3a67ce3c5826/GIF/foreground_video_people.gif)
 ![background](https://github.com/Lizzd/video-stitching-project3/blob/1f6f3d75dcc63bb805da45d9963c3a67ce3c5826/GIF/background_video_people.gif)
 
+Stitching Video demo2
+![image](https://github.com/Lizzd/video-stitching-project3/blob/812a840c389116ec1fddc52910dcc7acd199c962/GIF/projectmoving_rlc.gif)
+![image](https://github.com/Lizzd/video-stitching-project3/blob/812a840c389116ec1fddc52910dcc7acd199c962/GIF/foreground_video_rlc.gif)
+![background](https://github.com/Lizzd/video-stitching-project3/blob/1f6f3d75dcc63bb805da45d9963c3a67ce3c5826/GIF/background_video_rlc.gif)
 
 ## Usage Instructions
-- Use the command
-```
-python stitch_images.py <dir to images> <output result name>
-```
-- Output images will be written inside the folder 'results'
-
 Algorithm steps:
 
 1. Read in the image
@@ -55,11 +55,17 @@ python background-sub.py
 - To make a video from the `stitching_detailed.py` use `video`
 ``` python
 python create_video.py --input_type <type>
+
+# Creating a result stitching video 
+python create_video.py --input_type video
+# Creating a mask video, this must be done every time before running background-sub.py
+python create_video.py --input_type mask
+
 ```
 
 - To predict the midframe of the video and calculate the RMSE of difference with the Homography calculated from SIFT and Superglue.
 - You must put your video in Rmse_analysis/video
-- `<anme of the video>` should only be the name without the file extension.
+- `<name of the video>` should only be the name without the file extension.
 ``` python
 cd Rmse_analysis
 python mid_predict_H_Rmse.py <name of video>
