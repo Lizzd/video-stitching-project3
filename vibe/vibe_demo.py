@@ -10,8 +10,8 @@ import cv2
 import time
 from lib_vibe import vibe_gray
 
-cap = cv2.VideoCapture('projectmoving.avi')
-mask = cv2.VideoCapture('maskmoving.avi')
+cap = cv2.VideoCapture('../video_maskVideo/projectmoving.avi')
+mask = cv2.VideoCapture('../video_maskVideo/maskmoving.avi')
 vibe = vibe_gray()
 
 frame_index = 0
