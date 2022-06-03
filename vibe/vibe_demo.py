@@ -47,7 +47,7 @@ while True:
 
     segmentation_map = segmentation_map * gray_mask
     cv2.imshow('Actual Frame!', frame)
-    cv2.imshow('Gray Frame!', gray_frame)
+    # cv2.imshow('Gray Frame!', gray_frame)
     cv2.imshow('Segmentation Frame!', segmentation_map)
     frame_index += 1
     if cv2.waitKey(1) & 0xFF == ord('q'):  # Break while loop if video ends

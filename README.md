@@ -18,3 +18,49 @@ By matching feature point descriptors, find matching feature point pairs in the 
 4. Solve the equation system and calculate the Homograph homography transformation matrix
 5. Perform affine transformation on one of the images through the Homograph homography transformation matrix
 6.Stitching pictures
+
+
+- Use the command
+- To get the frames from a video.
+``` python
+python video2frames.py <dir to images>
+```
+
+- Get the commandline to run
+``` python
+python argCreator.py
+```
+- Cmd + V on the terminal and run the stitching_detailed.py to get stiched frames
+
+-Get the video.The type you can choose video,mask,foreground,background
+``` python
+python create_video.py --input_type <type>
+```
+
+- To get the one stiched images from images and draw the matching pairs
+``` python
+python stitch_images.py <dir to images> <output result name>
+```
+- To get the stiched images and the blended stiched image
+``` python
+python laplacian_blending.py <dir to images> <output result name>
+```
+- To run the adaptive GMM algorithm to get the foreground and background 
+``` python
+python background-sub.py <>
+```
+- Do matching with superglue and draw the matching pairs
+``` python
+cd superglue_matching
+python match_pairs.py
+```
+- To predict the midframe of the video and calculate the RMSE of difference with the Homography calculated from SIFT and Superglue.
+``` python
+cd Rmse_analysis
+python mid_predict_H_Rmse.py
+```
+-To run the Vibe algorithm to get the foreground and background
+``` python
+cd vibe
+python vibe_demo
+```

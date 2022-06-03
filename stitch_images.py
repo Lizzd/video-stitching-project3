@@ -1,7 +1,5 @@
 import os
 import sys
-from turtle import width
-
 import cv2
 import numpy as np
 from ransac import ransac
@@ -107,7 +105,7 @@ def get_sift_homography(img1, img2):
         corrs = np.matrix(correspondenceList)
         # Compute homography matrix
         M, mask = cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)  # x2 = M*x1  many times choose
-        final_H, inlier = ransac(corrs)  # x2 = M*x1  many times choose
+        # final_H, inlier = ransac(corrs)  # x2 = M*x1  many times choose
         # M = final_H
         # four points to calculate and use RANSAC to choose the best one
         return M, img1, img2
@@ -185,7 +183,7 @@ def stitch_images(img1, img2):
 
 
 def save_image(img, name):
-    result_image_name = os.path.join('results/', f'result_{name}.jpg')
+    result_image_name = os.path.join('results/', f'stiched_result_{name}.jpg')
     cv2.imwrite(result_image_name, img)
 
 
@@ -219,13 +217,9 @@ def main():
             # Show matched keypoint of two images
             draw_matched_keypoint(img1, img2)
 
-            # img1, img3, [img1_key, img2_key] = stitch_images(img1, img2)
             img1, [img1_key, img2_key] = stitch_images(img1, img2)
     save_image(img1, sys.argv[2])
-    # save_image(img2, sys.argv[2])
-    # Show the resulting image
-    # show_image((img3, 'lap Result'))
-    # show_image(img1, 'Result')
+    show_image(img1, 'results')
     cv2.waitKey()
 
 
