@@ -42,8 +42,8 @@ python argCreator.py
 - RUN `stitching_detailed.py` first
 - After running this script, the `background_video.avi` and `foreground_video.avi` should be available at the root directory.
 ``` python
-python create_video.py --input_type video
-python create_video.py --input_type mask
+python create_video.py --input_type video # the stitced video will be saved at './video_maskVideo/projectmoving.avi'
+python create_video.py --input_type mask  # the mask video where each frame is being places will be saved at './video_maskVideo/maskmoving.avi'
 python background-sub.py
 ```
 
@@ -54,7 +54,8 @@ python create_video.py --input_type <type>
 ```
 
 - To predict the midframe of the video and calculate the RMSE of difference with the Homography calculated from SIFT and Superglue.
-- You can put your video in Rmse_analysis/video
+- You must put your video in Rmse_analysis/video
+- `<anme of the video>` should only be the name without the file extension.
 ``` python
 cd Rmse_analysis
 python mid_predict_H_Rmse.py <name of video>
