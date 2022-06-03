@@ -1,3 +1,7 @@
+'''
+This code has been modified from https://docs.opencv.org/4.x/dc/dff/tutorial_py_pyramids.html
+'''
+
 import os
 import sys
 from turtle import width
